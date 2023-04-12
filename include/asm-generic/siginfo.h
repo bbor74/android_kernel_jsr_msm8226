@@ -133,6 +133,11 @@ typedef struct siginfo {
 #define si_addr_lsb	_sifields._sigfault._addr_lsb
 #define si_band		_sifields._sigpoll._band
 #define si_fd		_sifields._sigpoll._fd
+#ifdef __ARCH_SIGSYS
+#define si_call_addr	_sifields._sigsys._call_addr
+#define si_syscall	_sifields._sigsys._syscall
+#define si_arch		_sifields._sigsys._arch
+#endif
 
 #ifdef __KERNEL__
 #define __SI_MASK	0xffff0000u
@@ -143,6 +148,7 @@ typedef struct siginfo {
 #define __SI_CHLD	(4 << 16)
 #define __SI_RT		(5 << 16)
 #define __SI_MESGQ	(6 << 16)
+#define __SI_SYS	(7 << 16)
 #define __SI_CODE(T,N)	((T) | ((N) & 0xffff))
 #else
 #define __SI_KILL	0
@@ -152,6 +158,7 @@ typedef struct siginfo {
 #define __SI_CHLD	0
 #define __SI_RT		0
 #define __SI_MESGQ	0
+#define __SI_SYS	0
 #define __SI_CODE(T,N)	(N)
 #endif
 
