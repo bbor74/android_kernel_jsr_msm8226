@@ -98,9 +98,18 @@ typedef struct siginfo {
 			__ARCH_SI_BAND_T _band;	/* POLL_IN, POLL_OUT, POLL_MSG */
 			int _fd;
 		} _sigpoll;
+
+		/* SIGSYS */
+		struct {
+			void __user *_call_addr; /* calling user insn */
+			int _syscall;	/* triggering system call number */
+			unsigned int _arch;	/* AUDIT_ARCH_* of syscall */
+		} _sigsys;
 	} _sifields;
 } __ARCH_SI_ATTRIBUTES siginfo_t;
 
+/* If the arch shares siginfo, then it has SIGSYS. */
+#define __ARCH_SIGSYS
 #endif
 
 /*
@@ -238,6 +247,12 @@ typedef struct siginfo {
 #define POLL_PRI	(__SI_POLL|5)	/* high priority input available */
 #define POLL_HUP	(__SI_POLL|6)	/* device disconnected */
 #define NSIGPOLL	6
+
+/*
+ * SIGSYS si_codes
+ */
+#define SYS_SECCOMP		(__SI_SYS|1)	/* seccomp triggered */
+#define NSIGSYS	1
 
 /*
  * sigevent definitions
