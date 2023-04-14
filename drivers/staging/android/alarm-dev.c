@@ -41,10 +41,12 @@ do {									\
 
 #define ANDROID_ALARM_WAKEUP_MASK ( \
 	ANDROID_ALARM_RTC_WAKEUP_MASK | \
-	ANDROID_ALARM_ELAPSED_REALTIME_WAKEUP_MASK)
+	ANDROID_ALARM_ELAPSED_REALTIME_WAKEUP_MASK | \
+	ANDROID_ALARM_RTC_POWEROFF_WAKEUP_MASK)
 
 static int alarm_opened;
 static DEFINE_SPINLOCK(alarm_slock);
+static DEFINE_MUTEX(alarm_mutex);
 static struct wakeup_source alarm_wake_lock;
 static DECLARE_WAIT_QUEUE_HEAD(alarm_wait_queue);
 static uint32_t alarm_pending;
@@ -99,6 +101,7 @@ static void alarm_clear(enum android_alarm_type alarm_type, struct timespec *ts)
 	uint32_t alarm_type_mask = 1U << alarm_type;
 	unsigned long flags;
 
+	mutex_lock(&alarm_mutex);
 	spin_lock_irqsave(&alarm_slock, flags);
 	alarm_dbg(IO, "alarm %d clear\n", alarm_type);
 	devalarm_try_to_cancel(&alarms[alarm_type]);
@@ -112,6 +115,7 @@ static void alarm_clear(enum android_alarm_type alarm_type, struct timespec *ts)
 
 	if (alarm_type == ANDROID_ALARM_RTC_POWEROFF_WAKEUP)
 		set_power_on_alarm(ts->tv_sec, 0);
+	mutex_unlock(&alarm_mutex);
 }
 
 static void alarm_set(enum android_alarm_type alarm_type,
@@ -120,6 +124,7 @@ static void alarm_set(enum android_alarm_type alarm_type,
 	uint32_t alarm_type_mask = 1U << alarm_type;
 	unsigned long flags;
 
+	mutex_lock(&alarm_mutex);
 	spin_lock_irqsave(&alarm_slock, flags);
 	alarm_dbg(IO, "alarm %d set %ld.%09ld\n",
 			alarm_type, ts->tv_sec, ts->tv_nsec);
@@ -129,6 +134,7 @@ static void alarm_set(enum android_alarm_type alarm_type,
 
 	if (alarm_type == ANDROID_ALARM_RTC_POWEROFF_WAKEUP)
 		set_power_on_alarm(ts->tv_sec, 1);
+	mutex_unlock(&alarm_mutex);
 }
 
 static int alarm_wait(void)
@@ -255,6 +261,7 @@ static long alarm_do_ioctl(struct file *file, unsigned int cmd,
 	}
 	return rv;
 }
+
 static long alarm_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 
@@ -429,6 +436,8 @@ static int __init alarm_dev_init(void)
 			CLOCK_BOOTTIME, HRTIMER_MODE_ABS);
 	hrtimer_init(&alarms[ANDROID_ALARM_SYSTEMTIME].u.hrt,
 			CLOCK_MONOTONIC, HRTIMER_MODE_ABS);
+	alarm_init(&alarms[ANDROID_ALARM_RTC_POWEROFF_WAKEUP].u.alrm,
+			ALARM_REALTIME, devalarm_alarmhandler);
 
 	for (i = 0; i < ANDROID_ALARM_TYPE_COUNT; i++) {
 		alarms[i].type = i;
@@ -437,6 +446,8 @@ static int __init alarm_dev_init(void)
 	}
 
 	wakeup_source_init(&alarm_wake_lock, "alarm");
+
+	power_on_alarm_init();
 	return 0;
 }
 
