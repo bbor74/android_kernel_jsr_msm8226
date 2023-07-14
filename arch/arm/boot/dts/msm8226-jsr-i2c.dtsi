@@ -11,6 +11,8 @@
 		interrupts = <0 95 0>;
 		interrupt-names = "qup_err_intr";
 		qcom,i2c-bus-freq = <100000>;
+		qcom,i2c-src-freq = <19200000>;
+		qcom,master-id = <86>;
 		/* ---- msm-tricolor-leds ----  */
 		bct@30 {
 			compatible = "bct,bct3253";
