@@ -24,6 +24,13 @@
 		qcom,rpm-en;
 		qcom,nfab = <6>;
 
+		coresight-id = <52>;
+		coresight-name = "coresight-mnoc";
+		coresight-nr-inports = <0>;
+		coresight-outports = <0>;
+		coresight-child-list = <&funnel_in0>;
+		coresight-child-ports = <5>;
+
 		mas-gfx3d {
 			cell-id = <26>;
 			label = "mas-gfx3d";
@@ -264,6 +271,13 @@
 		qcom,rpm-en;
 		qcom,nfab = <6>;
 
+		coresight-id = <50>;
+		coresight-name = "coresight-snoc";
+		coresight-nr-inports = <0>;
+		coresight-outports = <0>;
+		coresight-child-list = <&funnel_in0>;
+		coresight-child-ports = <3>;
+
 		mas-lpass-ahb {
 			cell-id = <52>;
 			label = "mas-lpass-ahb";
@@ -481,6 +495,13 @@
 		qcom,hw-sel = "NoC";
 		qcom,rpm-en;
 		qcom,nfab = <6>;
+
+		coresight-id = <54>;
+		coresight-name = "coresight-pnoc";
+		coresight-nr-inports = <0>;
+		coresight-outports = <0>;
+		coresight-child-list = <&funnel_in0>;
+		coresight-child-ports = <6>;
 
 		mas-pnoc-cfg {
 			cell-id = <88>;
@@ -1011,6 +1032,13 @@
 		qcom,hw-sel = "BIMC";
 		qcom,rpm-en;
 		qcom,nfab = <6>;
+
+		coresight-id = <55>;
+		coresight-name = "coresight-bimc";
+		coresight-nr-inports = <0>;
+		coresight-outports = <0>;
+		coresight-child-list = <&funnel_in1>;
+		coresight-child-ports = <3>;
 
 		mas-ampss-m0 {
 			cell-id = <1>;
