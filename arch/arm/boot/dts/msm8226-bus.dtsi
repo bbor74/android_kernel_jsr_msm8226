@@ -284,6 +284,8 @@
 			qcom,mode = "Fixed";
 			qcom,qport = <1>;
 			qcom,mas-hw-id = <19>;
+			qcom,hw-sel = "NoC";
+			qcom,prio-lvl = <1>;
 		};
 
 		mas-snoc-cfg {
@@ -346,11 +348,12 @@
 			qcom,masterp = <5>;
 			qcom,tier = <2>;
 			qcom,mode = "Fixed";
-/*			qcom,qport = <2>;*/
+			qcom,qport = <2>;
 			qcom,mas-hw-id = <23>;
 			qcom,hw-sel = "NoC";
 			qcom,prio-rd = <1>;
 			qcom,prio-wr = <1>;
+			qcom,prio-lvl = <1>;
 		};
 
 		mas-lpass-proc {
@@ -407,6 +410,8 @@
 			qcom,qport = <10>;
 			qcom,mode = "Fixed";
 			qcom,mas-hw-id = <31>;
+			qcom,hw-sel = "NoC";
+			qcom,prio-lvl = <1>;
 		};
 
 		slv-ampss {
