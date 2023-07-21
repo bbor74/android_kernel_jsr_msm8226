@@ -1225,6 +1225,9 @@
 		qcom,freq-mitigation-control-mask = <0x01>;
 		qcom,vdd-restriction-temp = <5>;
 		qcom,vdd-restriction-temp-hysteresis = <10>;
+		qcom,pmic-sw-mode-temp = <85>;
+		qcom,pmic-sw-mode-temp-hysteresis = <75>;
+		qcom,pmic-sw-mode-regs = "vdd-dig";
 		vdd-dig-supply = <&pm8226_s1_floor_corner>;
 
 		qcom,vdd-dig-rstr{
