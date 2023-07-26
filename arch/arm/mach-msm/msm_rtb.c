@@ -303,6 +303,7 @@ static struct of_device_id msm_match_table[] = {
 	{.compatible = RTB_COMPAT_STR},
 	{},
 };
+EXPORT_COMPAT(RTB_COMPAT_STR);
 
 static struct platform_driver msm_rtb_driver = {
 	.driver         = {
