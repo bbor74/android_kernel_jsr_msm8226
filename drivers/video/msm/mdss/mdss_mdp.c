@@ -2317,8 +2317,10 @@ static int mdss_mdp_parse_dt_misc(struct platform_device *pdev)
 	 */
 	mdata->ib_factor_overlap.numer = mdata->ib_factor.numer;
 	mdata->ib_factor_overlap.denom = mdata->ib_factor.denom;
+#ifndef CONFIG_ARCH_MSM8226
 	mdss_mdp_parse_dt_fudge_factors(pdev, "qcom,mdss-ib-factor-overlap",
 		&mdata->ib_factor_overlap);
+#endif /* CONFIG_ARCH_MSM8226 */
 
 	mdata->clk_factor.numer = 1;
 	mdata->clk_factor.denom = 1;
@@ -2442,8 +2444,8 @@ static int mdss_mdp_parse_dt_prop_len(struct platform_device *pdev,
 	of_find_property(pdev->dev.of_node, prop_name, &len);
 
 	if (len < 1) {
-		pr_err("Error from prop %s : spec error in device tree\n",
-		       prop_name);
+		pr_debug("prop %s : doesn't exist in device tree\n",
+			prop_name);
 		return 0;
 	}
 
