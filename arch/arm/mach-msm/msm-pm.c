@@ -1005,7 +1005,7 @@ static struct platform_driver msm_cpu_status_driver = {
 	},
 };
 
-static struct of_device_id msm_snoc_clnt_match_tbl[] = {
+static struct of_device_id msm_snoc_clnt_match_tbl[]  = {
 	{.compatible = "qcom,pm-snoc-client"},
 	{},
 };
@@ -1272,7 +1272,7 @@ static int msm_cpu_pm_probe(struct platform_device *pdev)
 	return ret;
 }
 
-static struct of_device_id msm_cpu_pm_table[] = {
+static struct of_device_id msm_cpu_pm_table[]  = {
 	{.compatible = "qcom,pm-8x60"},
 	{},
 };
@@ -1286,7 +1286,7 @@ static struct platform_driver msm_cpu_pm_driver = {
 	},
 };
 
-static int __init msm_cpu_pm_init(void)
+static int  msm_cpu_pm_init(void)
 {
 	int rc;
 
@@ -1304,7 +1304,7 @@ static int __init msm_cpu_pm_init(void)
 }
 device_initcall(msm_cpu_pm_init);
 
-void __init msm_pm_sleep_status_init(void)
+void  msm_pm_sleep_status_init(void)
 {
 	platform_driver_register(&msm_cpu_status_driver);
 }
