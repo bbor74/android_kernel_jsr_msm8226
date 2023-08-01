@@ -913,7 +913,7 @@ int __init msm_bus_fabric_init_driver(void)
 	else
 		initialized = true;
 
-	MSM_BUS_ERR("msm_bus_fabric_init_driver\n");
+	MSM_BUS_WARN("msm_bus_fabric_init_driver\n");
 	return platform_driver_register(&msm_bus_fabric_driver);
 }
 EXPORT_SYMBOL(msm_bus_fabric_init_driver);
