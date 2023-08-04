@@ -173,7 +173,7 @@ static int ehci_msm_probe(struct platform_device *pdev)
 
 	ret = otg_set_host(phy->otg, &hcd->self);
 	if (ret < 0) {
-		dev_err(&pdev->dev, "unable to register with transceiver\n");
+		dev_warn(&pdev->dev, "unable to register with transceiver\n");
 		goto put_transceiver;
 	}
 
