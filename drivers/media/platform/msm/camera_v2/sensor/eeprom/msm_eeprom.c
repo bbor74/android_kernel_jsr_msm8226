@@ -401,7 +401,7 @@ static int msm_eeprom_parse_memory_map(struct device_node *of,
 		rc = of_property_read_u32_array(of, property,
 			(uint32_t *) &map[i].pageen, count);
 		if (rc < 0)
-			pr_err("%s: pageen not needed\n", __func__);
+			CDBG("%s: pageen not needed\n", __func__);
 
 		snprintf(property, PROPERTY_MAXSIZE, "qcom,poll%d", i);
 		rc = of_property_read_u32_array(of, property,
@@ -766,7 +766,7 @@ static int msm_eeprom_spi_setup(struct spi_device *spi)
 
         rc = msm_eeprom_mm_dts(e_ctrl->eboard_info, spi->dev.of_node);
 	if (rc < 0) {
-		pr_err("%s MM data miss:%d\n", __func__, __LINE__);
+		CDBG("%s MM data miss:%d\n", __func__, __LINE__);
 	}
 
 	power_info = &eb_info->power_info;
@@ -1019,7 +1019,7 @@ static int msm_eeprom_platform_probe(struct platform_device *pdev)
 
         rc = msm_eeprom_mm_dts(e_ctrl->eboard_info, of_node);
 	if (rc < 0) {
-		pr_err("%s MM data miss:%d\n", __func__, __LINE__);
+		CDBG("%s MM data miss:%d\n", __func__, __LINE__);
 	}
 	rc = msm_eeprom_get_dt_data(e_ctrl);
 	if (rc)
