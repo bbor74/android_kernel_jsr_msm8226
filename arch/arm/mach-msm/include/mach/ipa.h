@@ -672,6 +672,8 @@ int teth_bridge_set_aggr_params(struct teth_aggr_params *aggr_params);
 void ipa_bam_reg_dump(void);
 bool ipa_emb_ul_pipes_empty(void);
 
+bool ipa_is_ready(void);
+
 #else /* CONFIG_IPA */
 
 static inline int a2_mux_open_channel(enum a2_mux_logical_channel_id lcid,
@@ -1119,6 +1121,10 @@ static inline bool ipa_emb_ul_pipes_empty(void)
 	return false;
 }
 
+static inline bool ipa_is_ready(void)
+{
+	return false;
+}
 #endif /* CONFIG_IPA*/
 
 #endif /* _IPA_H_ */

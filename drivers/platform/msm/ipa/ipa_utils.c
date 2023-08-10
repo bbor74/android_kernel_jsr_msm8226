@@ -1403,3 +1403,15 @@ void ipa_bam_reg_dump(void)
 }
 EXPORT_SYMBOL(ipa_bam_reg_dump);
 
+/**
+ * ipa_is_ready() - check if IPA module was initialized
+ * successfully
+ *
+ * Return value: true for yes; false for no
+ */
+bool ipa_is_ready(void)
+{
+	return (ipa_ctx != NULL) ? true : false;
+}
+EXPORT_SYMBOL(ipa_is_ready);
+
