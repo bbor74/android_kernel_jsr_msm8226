@@ -2413,7 +2413,7 @@ static __devinit int msm8226_asoc_machine_probe(struct platform_device *pdev)
 	ext_spk_amp_gpio = of_get_named_gpio(pdev->dev.of_node,
 			"qcom,cdc-lineout-spkr-gpios", 0);
 	if (ext_spk_amp_gpio < 0) {
-		dev_err(&pdev->dev,
+		dev_dbg(&pdev->dev,
 			"Looking up %s property in node %s failed %d\n",
 			"qcom, cdc-lineout-spkr-gpios",
 			pdev->dev.of_node->full_name, ext_spk_amp_gpio);
