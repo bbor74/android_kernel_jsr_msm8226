@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2014, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -61,9 +61,11 @@ static int32_t msm_led_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 
 	switch (cfg->cfgtype) {
 	case MSM_CAMERA_LED_OFF:
+		/* Flash off */
 		for (i = 0; i < fctrl->num_sources; i++)
 			if (fctrl->flash_trigger[i])
 				led_trigger_event(fctrl->flash_trigger[i], 0);
+		/* Torch off */
 		if (fctrl->torch_trigger)
 			led_trigger_event(fctrl->torch_trigger, 0);
 		break;
@@ -76,7 +78,7 @@ static int32_t msm_led_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 				curr_l = cfg->torch_current;
 			} else {
 				curr_l = fctrl->torch_op_current;
-				pr_err("LED current clamped to %d\n",
+				pr_debug("LED torch clamped to %d\n",
 					curr_l);
 			}
 			led_trigger_event(fctrl->torch_trigger,
@@ -85,6 +87,7 @@ static int32_t msm_led_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 		break;
 
 	case MSM_CAMERA_LED_HIGH:
+		/* Torch off */
 		if (fctrl->torch_trigger)
 			led_trigger_event(fctrl->torch_trigger, 0);
 		for (i = 0; i < fctrl->num_sources; i++)
@@ -95,7 +98,7 @@ static int32_t msm_led_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 					curr_l = cfg->flash_current[i];
 				} else {
 					curr_l = fctrl->flash_op_current[i];
-					pr_err("LED current clamped to %d\n",
+					pr_debug("LED flash clamped to %d\n",
 						curr_l);
 				}
 				led_trigger_event(fctrl->flash_trigger[i],
@@ -105,9 +108,11 @@ static int32_t msm_led_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 
 	case MSM_CAMERA_LED_INIT:
 	case MSM_CAMERA_LED_RELEASE:
+		/* Flash off */
 		for (i = 0; i < fctrl->num_sources; i++)
 			if (fctrl->flash_trigger[i])
 				led_trigger_event(fctrl->flash_trigger[i], 0);
+		/* Torch off */
 		if (fctrl->torch_trigger)
 			led_trigger_event(fctrl->torch_trigger, 0);
 		break;
@@ -167,6 +172,7 @@ static int32_t msm_led_trigger_probe(struct platform_device *pdev)
 		return -EINVAL;
 	}
 
+	/* Flash source */
 	if (of_get_property(of_node, "qcom,flash-source", &count)) {
 		count /= sizeof(uint32_t);
 		CDBG("count %d\n", count);
@@ -242,7 +248,7 @@ static int32_t msm_led_trigger_probe(struct platform_device *pdev)
 
 			if (flashtype == GPIO_FLASH) {
 				/* use fake current */
-				fctrl.torch_op_current = LED_FULL;
+				fctrl.torch_op_current = LED_HALF;
 				if (temp)
 					fctrl.torch_trigger = temp;
 				else
