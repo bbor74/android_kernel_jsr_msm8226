@@ -58,6 +58,7 @@ struct lsm_common {
 };
 
 static struct lsm_common lsm_common;
+
 /*
  * mmap_handle_p can point either client->sound_model.mem_map_handle or
  * lsm_common.mmap_handle_for_cal.
@@ -254,6 +255,7 @@ void q6lsm_client_free(struct lsm_client *client)
 	q6lsm_mmap_apr_dereg();
 	mutex_destroy(&client->cmd_lock);
 	kfree(client);
+	client = NULL;
 }
 
 /*
