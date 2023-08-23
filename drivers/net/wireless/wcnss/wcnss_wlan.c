@@ -2137,6 +2137,7 @@ static void wcnss_nvbin_dnld(void)
 			(nv_blob_addr + count * NV_FRAGMENT_SIZE),
 			cur_frag_size);
 
+		msleep(20);
 		ret = wcnss_smd_tx(outbuffer, dnld_req_msg->hdr.msg_len);
 
 		retry_count = 0;
