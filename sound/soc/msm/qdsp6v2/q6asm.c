@@ -1385,8 +1385,7 @@ static int32_t q6asm_callback(struct apr_client_data *data, void *priv)
 		return -EINVAL;
 	}
 
-	if (ac->session <= 0 || ac->session > 8 ||
-		!q6asm_is_valid_audio_client(ac)) {
+	if (ac->session <= 0 || ac->session > 8) {
 		pr_err("%s:Session ID is invalid, session = %d\n", __func__,
 			ac->session);
 		return -EINVAL;
