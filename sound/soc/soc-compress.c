@@ -730,7 +730,6 @@ static int sst_compr_set_next_track_param(struct snd_compr_stream *cstream,
 	return ret;
 }
 
-
 static int sst_compr_set_metadata(struct snd_compr_stream *cstream,
 				struct snd_compr_metadata *metadata)
 {
