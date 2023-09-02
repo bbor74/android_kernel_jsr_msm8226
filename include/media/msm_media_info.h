@@ -84,11 +84,11 @@ static inline unsigned int VENUS_EXTRADATA_SIZE(int width, int height)
 	(void)height;
 	(void)width;
 
-	/*
-	 * This VENUS_EXTRADATA_SIZE breaks video camera with HighScreen IIse
-	 * camera blobs and need to be set to zero (S-trace). Thanks OatIT
-	 */
+#if 1
 	return 0;
+#else
+	return 8 * 1024;
+#endif
 }
 
 static inline unsigned int VENUS_Y_STRIDE(int color_fmt, int width)
