@@ -303,7 +303,7 @@ int bus_for_each_dev(struct bus_type *bus, struct device *start,
 	struct device * msm_sdcc_items[MSM_SDCC_ITEM_MAX];
 	size_t x;
 
-	if (!bus)
+	if (!bus || !bus->p)
 		return -EINVAL;
 
 	if ((size_t)start == 1) {
@@ -370,7 +370,7 @@ struct device *bus_find_device(struct bus_type *bus,
 	struct klist_iter i;
 	struct device *dev;
 
-	if (!bus)
+	if (!bus || !bus->p)
 		return NULL;
 
 	klist_iter_init_node(&bus->p->klist_devices, &i,
