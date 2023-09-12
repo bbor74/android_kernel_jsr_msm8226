@@ -862,7 +862,6 @@ static int msm_actuator_close(struct v4l2_subdev *sd,
 		pr_err("failed\n");
 		return -EINVAL;
 	}
-	mutex_lock(a_ctrl->actuator_mutex);
 	if (a_ctrl->act_device_type == MSM_CAMERA_PLATFORM_DEVICE &&
 		a_ctrl->actuator_state != ACT_DISABLE_STATE) {
 		rc = a_ctrl->i2c_client.i2c_func_tbl->i2c_util(
