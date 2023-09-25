@@ -792,7 +792,7 @@ static struct mount *clone_mnt(struct mount *old, struct dentry *root,
 
  out_free:
 	free_vfsmnt(mnt);
-	return NULL;
+	return ERR_PTR(err);
 }
 
 static inline void mntfree(struct mount *mnt)
@@ -1298,11 +1298,12 @@ struct mount *copy_tree(struct mount *mnt, struct dentry *dentry,
 	struct path path;
 
 	if (!(flag & CL_COPY_ALL) && IS_MNT_UNBINDABLE(mnt))
-		return NULL;
+		return ERR_PTR(-EINVAL);
 
 	res = q = clone_mnt(mnt, dentry, flag);
-	if (!q)
-		goto Enomem;
+	if (IS_ERR(q))
+		return q;
+
 	q->mnt_mountpoint = mnt->mnt_mountpoint;
 
 	p = mnt;
@@ -1324,8 +1325,8 @@ struct mount *copy_tree(struct mount *mnt, struct dentry *dentry,
 			path.mnt = &q->mnt;
 			path.dentry = p->mnt_mountpoint;
 			q = clone_mnt(p, p->mnt.mnt_root, flag);
-			if (!q)
-				goto Enomem;
+			if (IS_ERR(q))
+				goto out;
 			br_write_lock(&vfsmount_lock);
 			list_add_tail(&q->mnt_list, &res->mnt_list);
 			attach_mnt(q, &path);
@@ -1333,7 +1334,7 @@ struct mount *copy_tree(struct mount *mnt, struct dentry *dentry,
 		}
 	}
 	return res;
-Enomem:
+out:
 	if (res) {
 		LIST_HEAD(umount_list);
 		br_write_lock(&vfsmount_lock);
@@ -1341,8 +1342,10 @@ Enomem:
 		br_write_unlock(&vfsmount_lock);
 		release_mounts(&umount_list);
 	}
-	return NULL;
+	return q;
 }
+
+/* Caller should check returned pointer for errors */
 
 struct vfsmount *collect_mounts(struct path *path)
 {
@@ -1354,7 +1357,9 @@ struct vfsmount *collect_mounts(struct path *path)
 		tree = copy_tree(real_mount(path->mnt), path->dentry,
 				 CL_COPY_ALL | CL_PRIVATE);
 	up_write(&namespace_sem);
-	return tree ? &tree->mnt : NULL;
+	if (IS_ERR(tree))
+		return NULL;
+	return &tree->mnt;
 }
 
 void drop_collected_mounts(struct vfsmount *mnt)
@@ -1655,14 +1660,15 @@ static int do_loopback(struct path *path, const char *old_name,
 	if (!check_mnt(real_mount(path->mnt)) || !check_mnt(old))
 		goto out2;
 
-	err = -ENOMEM;
 	if (recurse)
 		mnt = copy_tree(old, old_path.dentry, 0);
 	else
 		mnt = clone_mnt(old, old_path.dentry, 0);
 
-	if (!mnt)
-		goto out2;
+	if (IS_ERR(mnt)) {
+		err = PTR_ERR(mnt);
+		goto out;
+	}
 
 	err = graft_tree(mnt, path);
 	if (err) {
@@ -2326,10 +2332,10 @@ static struct mnt_namespace *dup_mnt_ns(struct mnt_namespace *mnt_ns,
 	if (user_ns != mnt_ns->user_ns)
 		copy_flags |= CL_SHARED_TO_SLAVE;
 	new = copy_tree(old, old->mnt.mnt_root, copy_flags);
-	if (!new) {
+	if (IS_ERR(new)) {
 		up_write(&namespace_sem);
 		free_mnt_ns(new_ns);
-		return ERR_PTR(-ENOMEM);
+		return ERR_CAST(new);
 	}
 	new_ns->root = new;
 	br_write_lock(&vfsmount_lock);
