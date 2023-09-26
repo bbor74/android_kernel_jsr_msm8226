@@ -669,7 +669,9 @@ int msm_ipc_router_init_sockets(void)
 	}
 
 	sockets_enabled = 1;
+#ifdef CONFIG_IPC_LOGGING
 	msm_ipc_router_ipc_log_init();
+#endif
 out_init_sockets:
 	return ret;
 }

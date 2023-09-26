@@ -3093,11 +3093,12 @@ unmap_memory:
 static int __init msm_serial_hs_init(void)
 {
 	int ret;
-
+#ifdef CONFIG_IPC_LOGGING
 	ipc_msm_hs_log_ctxt = ipc_log_context_create(IPC_MSM_HS_LOG_PAGES,
 							"msm_serial_hs", 0);
 	if (!ipc_msm_hs_log_ctxt)
 		MSM_HS_WARN("%s: error creating logging context", __func__);
+#endif
 
 	ret = uart_register_driver(&msm_hs_driver);
 	if (unlikely(ret)) {
