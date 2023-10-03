@@ -32,7 +32,7 @@
 #define SHOW_PROGRESS
 #define MAX_FIRMWARE_ID_LEN 10
 #define FORCE_UPDATE false
-#define INSIDE_FIRMWARE_UPDATE
+/* #define INSIDE_FIRMWARE_UPDATE */
 
 #define FW_IMAGE_OFFSET 0x100
 /* 0 to ignore flash block check to speed up flash time */
