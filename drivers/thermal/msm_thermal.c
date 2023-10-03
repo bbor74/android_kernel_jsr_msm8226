@@ -808,7 +808,7 @@ static int msm_thermal_get_freq_table(void)
 
 	table = cpufreq_frequency_get_table(0);
 	if (table == NULL) {
-		pr_err("error reading cpufreq table\n");
+		pr_debug("error reading cpufreq table\n");
 		ret = -EINVAL;
 		goto fail;
 	}
