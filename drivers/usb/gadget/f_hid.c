@@ -122,7 +122,6 @@ static struct hid_descriptor hidg_desc = {
 };
 
 /* High-Speed Support */
-
 static struct usb_endpoint_descriptor hidg_hs_in_ep_desc = {
 	.bLength		= USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType	= USB_DT_ENDPOINT,
@@ -134,16 +133,25 @@ static struct usb_endpoint_descriptor hidg_hs_in_ep_desc = {
 				      * (struct hidg_func_descriptor)
 				      */
 };
-
+static struct usb_endpoint_descriptor hidg_hs_out_ep_desc = {
+	.bLength		= USB_DT_ENDPOINT_SIZE,
+	.bDescriptorType	= USB_DT_ENDPOINT,
+	.bEndpointAddress	= USB_DIR_OUT,
+	.bmAttributes		= USB_ENDPOINT_XFER_INT,
+	/*.wMaxPacketSize	= DYNAMIC */
+	.bInterval		= 4, /* FIXME: Add this field in the
+				      * HID gadget configuration?
+				      * (struct hidg_func_descriptor)
+				      */
+};
 static struct usb_descriptor_header *hidg_hs_descriptors[] = {
 	(struct usb_descriptor_header *)&hidg_interface_desc,
 	(struct usb_descriptor_header *)&hidg_desc,
 	(struct usb_descriptor_header *)&hidg_hs_in_ep_desc,
+	(struct usb_descriptor_header *)&hidg_hs_out_ep_desc,
 	NULL,
 };
-
 /* Full-Speed Support */
-
 static struct usb_endpoint_descriptor hidg_fs_in_ep_desc = {
 	.bLength		= USB_DT_ENDPOINT_SIZE,
 	.bDescriptorType	= USB_DT_ENDPOINT,
@@ -155,11 +163,22 @@ static struct usb_endpoint_descriptor hidg_fs_in_ep_desc = {
 				       * (struct hidg_func_descriptor)
 				       */
 };
-
+static struct usb_endpoint_descriptor hidg_fs_out_ep_desc = {
+	.bLength		= USB_DT_ENDPOINT_SIZE,
+	.bDescriptorType	= USB_DT_ENDPOINT,
+	.bEndpointAddress	= USB_DIR_OUT,
+	.bmAttributes		= USB_ENDPOINT_XFER_INT,
+	/*.wMaxPacketSize	= DYNAMIC */
+	.bInterval		= 10, /* FIXME: Add this field in the
+				       * HID gadget configuration?
+				       * (struct hidg_func_descriptor)
+				       */
+};
 static struct usb_descriptor_header *hidg_fs_descriptors[] = {
 	(struct usb_descriptor_header *)&hidg_interface_desc,
 	(struct usb_descriptor_header *)&hidg_desc,
 	(struct usb_descriptor_header *)&hidg_fs_in_ep_desc,
+	(struct usb_descriptor_header *)&hidg_fs_out_ep_desc,
 	NULL,
 };
 
@@ -541,7 +560,6 @@ static int hidg_bind(struct usb_configuration *c, struct usb_function *f)
 		goto fail;
 	hidg_interface_desc.bInterfaceNumber = status;
 
-
 	/* allocate instance-specific endpoints */
 	status = -ENODEV;
 	ep = usb_ep_autoconfig(c->cdev->gadget, &hidg_fs_in_ep_desc);
@@ -566,24 +584,23 @@ static int hidg_bind(struct usb_configuration *c, struct usb_function *f)
 	hidg_interface_desc.bInterfaceProtocol = hidg->bInterfaceProtocol;
 	hidg_hs_in_ep_desc.wMaxPacketSize = cpu_to_le16(hidg->report_length);
 	hidg_fs_in_ep_desc.wMaxPacketSize = cpu_to_le16(hidg->report_length);
+	hidg_hs_out_ep_desc.wMaxPacketSize = cpu_to_le16(hidg->report_length);
+	hidg_fs_out_ep_desc.wMaxPacketSize = cpu_to_le16(hidg->report_length);
 	hidg_desc.desc[0].bDescriptorType = HID_DT_REPORT;
 	hidg_desc.desc[0].wDescriptorLength =
 		cpu_to_le16(hidg->report_desc_length);
 
 	hidg->set_report_buff = NULL;
 
-	/* copy descriptors */
-	f->descriptors = usb_copy_descriptors(hidg_fs_descriptors);
-	if (!f->descriptors)
-		goto fail;
+	hidg_hs_in_ep_desc.bEndpointAddress =
+		hidg_fs_in_ep_desc.bEndpointAddress;
+	hidg_hs_out_ep_desc.bEndpointAddress =
+		hidg_fs_out_ep_desc.bEndpointAddress;
 
-	if (gadget_is_dualspeed(c->cdev->gadget)) {
-		hidg_hs_in_ep_desc.bEndpointAddress =
-			hidg_fs_in_ep_desc.bEndpointAddress;
-		f->hs_descriptors = usb_copy_descriptors(hidg_hs_descriptors);
-		if (!f->hs_descriptors)
-			goto fail;
-	}
+	status = usb_assign_descriptors(f, hidg_fs_descriptors,
+			hidg_hs_descriptors, NULL);
+	if (status)
+		goto fail;
 
 	mutex_init(&hidg->lock);
 	spin_lock_init(&hidg->spinlock);
@@ -610,9 +627,7 @@ fail:
 			usb_ep_free_request(hidg->in_ep, hidg->req);
 	}
 
-	usb_free_descriptors(f->hs_descriptors);
-	usb_free_descriptors(f->descriptors);
-
+	usb_free_all_descriptors(f);
 	return status;
 }
 
@@ -638,9 +653,7 @@ static void hidg_unbind(struct usb_configuration *c, struct usb_function *f)
 	kfree(hidg->req->buf);
 	usb_ep_free_request(hidg->in_ep, hidg->req);
 
-	/* free descriptors copies */
-	usb_free_descriptors(f->hs_descriptors);
-	usb_free_descriptors(f->descriptors);
+	usb_free_all_descriptors(f);
 
 	kfree(hidg->report_desc);
 	kfree(hidg->set_report_buff);
