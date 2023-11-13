@@ -350,10 +350,10 @@ int udpv6_recvmsg(struct kiocb *iocb, struct sock *sk,
 	bool slow;
 
 	if (flags & MSG_ERRQUEUE)
-		return ipv6_recv_error(sk, msg, len);
+		return ipv6_recv_error(sk, msg, len, addr_len);
 
 	if (np->rxpmtu && np->rxopt.bits.rxpmtu)
-		return ipv6_recv_rxpmtu(sk, msg, len);
+		return ipv6_recv_rxpmtu(sk, msg, len, addr_len);
 
 try_again:
 	skb = __skb_recv_datagram(sk, flags | (noblock ? MSG_DONTWAIT : 0),
@@ -454,6 +454,7 @@ csum_copy_err:
 	}
 	unlock_sock_fast(sk, slow);
 
+	
 	/* starting over for a new packet, but check if we need to yield */
 	cond_resched();
 	msg->msg_flags &= ~MSG_TRUNC;
