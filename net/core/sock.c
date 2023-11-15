@@ -113,6 +113,7 @@
 #include <linux/user_namespace.h>
 #include <linux/static_key.h>
 #include <linux/memcontrol.h>
+#include <linux/prefetch.h>
 
 #include <asm/uaccess.h>
 
@@ -1207,6 +1208,7 @@ struct sock *sk_alloc(struct net *net, int family, gfp_t priority,
 
 		sock_update_classid(sk);
 		sock_update_netprioidx(sk);
+
 	}
 
 	return sk;
@@ -1698,6 +1700,7 @@ static void __release_sock(struct sock *sk)
 
 		do {
 			struct sk_buff *next = skb->next;
+			prefetch(next);
 
 			WARN_ON_ONCE(skb_dst_is_noref(skb));
 			skb->next = NULL;
