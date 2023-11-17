@@ -1349,7 +1349,6 @@ struct task_struct {
 	const struct sched_class *sched_class;
 	struct sched_entity se;
 	struct sched_rt_entity rt;
-
 #ifdef CONFIG_CGROUP_SCHED
 	struct task_group *sched_task_group;
 #endif
@@ -1943,6 +1942,7 @@ extern int task_free_unregister(struct notifier_block *n);
 /* Per-process atomic flags. */
 #define PFA_SPREAD_PAGE  1      /* Spread page cache over cpuset */
 #define PFA_SPREAD_SLAB  2      /* Spread some slab caches over cpuset */
+#define PFA_NO_NEW_PRIVS 0x00000001	/* May not gain new privileges. */
 
 #define TASK_PFA_TEST(name, func)					\
 	static inline bool task_##func(struct task_struct *p)		\
@@ -1953,9 +1953,6 @@ extern int task_free_unregister(struct notifier_block *n);
 #define TASK_PFA_CLEAR(name, func)					\
 	static inline void task_clear_##func(struct task_struct *p)	\
 	{ clear_bit(PFA_##name, &p->atomic_flags); }
-
-/* Per-process atomic flags. */
-#define PFA_NO_NEW_PRIVS 0x00000001	/* May not gain new privileges. */
 
 static inline bool task_no_new_privs(struct task_struct *p)
 {
