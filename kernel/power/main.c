@@ -81,64 +81,6 @@ static ssize_t pm_async_store(struct kobject *kobj, struct kobj_attribute *attr,
 
 power_attr(pm_async);
 
-static ssize_t
-touch_event_show(struct kobject *kobj,
-		 struct kobj_attribute *attr, char *buf)
-{
-	if (tc_ev_processed == 0)
-		return snprintf(buf, strnlen("touch_event", MAX_BUF) + 1,
-				"touch_event");
-	else
-		return snprintf(buf, strnlen("null", MAX_BUF) + 1,
-				"null");
-}
-
-static ssize_t
-touch_event_store(struct kobject *kobj,
-		  struct kobj_attribute *attr,
-		  const char *buf, size_t n)
-{
-
-	hrtimer_cancel(&tc_ev_timer);
-	tc_ev_processed = 0;
-
-	/* set a timer to notify the userspace to stop processing
-	 * touch event
-	 */
-	hrtimer_start(&tc_ev_timer, touch_evt_timer_val, HRTIMER_MODE_REL);
-
-	/* wakeup the userspace poll */
-	sysfs_notify(kobj, NULL, "touch_event");
-
-	return n;
-}
-
-power_attr(touch_event);
-
-static ssize_t
-touch_event_timer_show(struct kobject *kobj,
-		 struct kobj_attribute *attr, char *buf)
-{
-	return snprintf(buf, MAX_BUF, "%lld", touch_evt_timer_val.tv64);
-}
-
-static ssize_t
-touch_event_timer_store(struct kobject *kobj,
-			struct kobj_attribute *attr,
-			const char *buf, size_t n)
-{
-	unsigned long val;
-
-	if (strict_strtoul(buf, 10, &val))
-		return -EINVAL;
-
-	touch_evt_timer_val = ktime_set(0, val*1000);
-
-	return n;
-}
-
-power_attr(touch_event_timer);
-
 static void touch_event_fn(struct work_struct *work)
 {
 	/* wakeup the userspace poll */
@@ -597,12 +539,8 @@ power_attr(pm_trace_dev_match);
 
 #endif /* CONFIG_PM_TRACE */
 
-#ifdef CONFIG_USER_WAKELOCK
-power_attr(wake_lock);
-power_attr(wake_unlock);
-#endif
 
-static struct attribute *g[] = {
+static struct attribute * g[] = {
 	&state_attr.attr,
 #ifdef CONFIG_PM_TRACE
 	&pm_trace_attr.attr,
@@ -618,14 +556,8 @@ static struct attribute *g[] = {
 	&wake_lock_attr.attr,
 	&wake_unlock_attr.attr,
 #endif
-	&touch_event_attr.attr,
-	&touch_event_timer_attr.attr,
 #ifdef CONFIG_PM_DEBUG
 	&pm_test_attr.attr,
-#endif
-#ifdef CONFIG_USER_WAKELOCK
-	&wake_lock_attr.attr,
-	&wake_unlock_attr.attr,
 #endif
 #endif
 	NULL,

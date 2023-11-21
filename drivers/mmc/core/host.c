@@ -716,7 +716,7 @@ int mmc_add_host(struct mmc_host *host)
 	err = pm_runtime_set_active(&host->class_dev);
 	if (err)
 		pr_err("%s: %s: failed setting runtime active: err: %d\n",
-		       mmc_hostname(host), __func__, err);
+				mmc_hostname(host), __func__, err);
 	else if (mmc_use_core_runtime_pm(host))
 		pm_runtime_enable(&host->class_dev);
 
@@ -797,7 +797,7 @@ void mmc_free_host(struct mmc_host *host)
 	idr_remove(&mmc_host_idr, host->index);
 	spin_unlock(&mmc_host_lock);
 	wake_lock_destroy(&host->detect_wake_lock);
-
+	kfree(host->wlock_name);
 	put_device(&host->class_dev);
 }
 

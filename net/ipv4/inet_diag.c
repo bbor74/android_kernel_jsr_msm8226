@@ -285,7 +285,7 @@ struct sock *inet_diag_find_one_icsk(struct net *net,
 	struct sock *sk;
 
 	if (req->sdiag_family == AF_INET) {
-		sk = inet_lookup(&init_net, hashinfo, req->id.idiag_dst[0],
+		sk = inet_lookup(net, hashinfo, req->id.idiag_dst[0],
 				 req->id.idiag_dport, req->id.idiag_src[0],
 				 req->id.idiag_sport, req->id.idiag_if);
 	}
@@ -293,11 +293,11 @@ struct sock *inet_diag_find_one_icsk(struct net *net,
 	else if (req->sdiag_family == AF_INET6) {
 		if (ipv6_addr_v4mapped((struct in6_addr *)req->id.idiag_dst) &&
 		    ipv6_addr_v4mapped((struct in6_addr *)req->id.idiag_src))
-			sk = inet_lookup(&init_net, hashinfo, req->id.idiag_dst[3],
+			sk = inet_lookup(net, hashinfo, req->id.idiag_dst[3],
 					 req->id.idiag_dport, req->id.idiag_src[3],
 					 req->id.idiag_sport, req->id.idiag_if);
 		else
-			sk = inet6_lookup(&init_net, hashinfo,
+			sk = inet6_lookup(net, hashinfo,
 					  (struct in6_addr *)req->id.idiag_dst,
 					  req->id.idiag_dport,
 					  (struct in6_addr *)req->id.idiag_src,
@@ -313,7 +313,6 @@ struct sock *inet_diag_find_one_icsk(struct net *net,
 		return ERR_PTR(-ENOENT);
 
 	if (sock_diag_check_cookie(sk, req->id.idiag_cookie)) {
-		/* NOTE: forward-ports should use sock_gen_put(sk) instead. */
 		if (sk->sk_state == TCP_TIME_WAIT)
 			inet_twsk_put((struct inet_timewait_sock *)sk);
 		else
@@ -1137,7 +1136,8 @@ static int inet_diag_handler_cmd(struct sk_buff *skb, struct nlmsghdr *h)
 		}
 	}
 
-	return inet_diag_cmd_exact(h->nlmsg_type,skb, h, (struct inet_diag_req_v2 *)NLMSG_DATA(h));
+	return inet_diag_cmd_exact(h->nlmsg_type, skb, h,
+				   (struct inet_diag_req_v2 *)NLMSG_DATA(h));
 }
 
 static struct sock_diag_handler inet_diag_handler = {
