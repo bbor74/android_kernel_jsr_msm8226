@@ -80,7 +80,7 @@
  */
 
 struct f_rndis_qc {
-	struct qc_gether			port;
+	struct qc_gether		port;
 	u8				ctrl_id, data_id;
 	u8				ethaddr[ETH_ALEN];
 	u32				vendorID;
@@ -88,8 +88,8 @@ struct f_rndis_qc {
 	u32				max_pkt_size;
 	const char			*manufacturer;
 	int				config;
-	atomic_t		ioctl_excl;
-	atomic_t		open_excl;
+	atomic_t			ioctl_excl;
+	atomic_t			open_excl;
 
 	struct usb_ep			*notify;
 	struct usb_request		*notify_req;
@@ -531,7 +531,7 @@ static void rndis_qc_response_available(void *_rndis)
 }
 
 static void rndis_qc_response_complete(struct usb_ep *ep,
-						struct usb_request *req)
+					struct usb_request *req)
 {
 	struct f_rndis_qc		*rndis = req->context;
 	int				status = req->status;
@@ -674,7 +674,7 @@ invalid:
 
 static int rndis_qc_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 {
-	struct f_rndis_qc		*rndis = func_to_rndis_qc(f);
+	struct f_rndis_qc	 *rndis = func_to_rndis_qc(f);
 	struct usb_composite_dev *cdev = f->config->cdev;
 
 	/* we know alt == 0 */
@@ -1256,9 +1256,9 @@ static int rndis_qc_init(void)
 {
 	int ret;
 
-	spin_lock_init(&rndis_lock);
-
 	pr_info("initialize rndis QC instance\n");
+
+	spin_lock_init(&rndis_lock);
 
 	ret = misc_register(&rndis_qc_device);
 	if (ret)
