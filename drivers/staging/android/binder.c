@@ -937,9 +937,8 @@ static void binder_delete_free_buffer(struct binder_proc *proc,
 	if (prev_buffer_end_page(prev) == buffer_start_page(buffer)) {
 		to_free = false;
 		binder_debug(BINDER_DEBUG_BUFFER_ALLOC,
-			     "binder: %d: merge free, buffer %pK "
-			     "share page with %pK\n",
-			     proc->pid, buffer->data, prev->data);
+			     "%d: merge free, buffer %pK share page with %pK\n",
+			      proc->pid, buffer->data, prev->data);
 	}
 
 	if (!list_is_last(&buffer->entry, &proc->buffers)) {
@@ -947,11 +946,8 @@ static void binder_delete_free_buffer(struct binder_proc *proc,
 		if (buffer_start_page(next) == buffer_start_page(buffer)) {
 			to_free = false;
 			binder_debug(BINDER_DEBUG_BUFFER_ALLOC,
-				     "binder: %d: merge free, buffer"
-				     " %pK share page with %pK\n",
-				     proc->pid,
-				     buffer->data,
-				     prev->data);
+				     "%d: merge free, buffer %pK share page with %pK\n",
+				      proc->pid, buffer->data, prev->data);
 		}
 	}
 	if (PAGE_ALIGNED(buffer->data)) {
@@ -3740,10 +3736,11 @@ static void binder_deferred_release(struct binder_proc *proc)
 		outgoing_refs++;
 		binder_delete_ref(ref);
 	}
+
 	binder_release_work(&proc->todo);
 	binder_release_work(&proc->delivered_death);
-	buffers = 0;
 
+	buffers = 0;
 	while ((n = rb_first(&proc->allocated_buffers))) {
 		buffer = rb_entry(n, struct binder_buffer, rb_node);
 
