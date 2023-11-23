@@ -1111,13 +1111,17 @@ rndis_qc_bind_config_vendor(struct usb_configuration *c, u8 ethaddr[ETH_ALEN],
 
 	status = usb_add_function(c, &rndis->port.func);
 	if (status) {
-		kfree(rndis);
-		_rndis_qc = NULL;
-fail:
-		rndis_exit();
-	} else {
-		_rndis_qc = rndis;
+		goto fail;
 	}
+
+	_rndis_qc = rndis;
+	
+	return status;
+
+fail:
+	kfree(rndis);
+	_rndis_qc = NULL;
+	rndis_exit();
 	return status;
 }
 
@@ -1143,6 +1147,7 @@ static int rndis_qc_open_dev(struct inode *ip, struct file *fp)
 	fp->private_data = _rndis_qc;
 fail:
 	spin_unlock_irqrestore(&rndis_lock, flags);
+
 	if (!ret)
 		pr_info("rndis QC file opened\n");
 
