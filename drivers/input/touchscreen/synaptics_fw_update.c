@@ -809,7 +809,7 @@ static enum flash_area fwu_go_nogo(void)
 		}
 
 		max_index = min((ptrdiff_t)(MAX_FIRMWARE_ID_LEN - 1),
-				&fwu->firmware_name[NAME_BUFFER_SIZE] - strptr);
+				&fwu->image_name[NAME_BUFFER_SIZE] - strptr);
 		index = 0;
 		strptr += 2;
 		while (index < max_index && isdigit(strptr[index])) {
