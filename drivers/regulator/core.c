@@ -1991,8 +1991,8 @@ static int _regulator_do_set_voltage(struct regulator_dev *rdev,
 int regulator_set_voltage(struct regulator *regulator, int min_uV, int max_uV)
 {
 	struct regulator_dev *rdev = regulator->rdev;
-	int ret = 0;
 	int old_min_uV, old_max_uV;
+	int ret = 0;
 
 	mutex_lock(&rdev->mutex);
 
@@ -2014,10 +2014,10 @@ int regulator_set_voltage(struct regulator *regulator, int min_uV, int max_uV)
 	ret = regulator_check_voltage(rdev, &min_uV, &max_uV);
 	if (ret < 0)
 		goto out;
-
 	/* restore original values in case of error */
 	old_min_uV = regulator->min_uV;
 	old_max_uV = regulator->max_uV;
+
 	regulator->min_uV = min_uV;
 	regulator->max_uV = max_uV;
 
@@ -2026,9 +2026,8 @@ int regulator_set_voltage(struct regulator *regulator, int min_uV, int max_uV)
 		goto out2;
 
 	ret = _regulator_do_set_voltage(rdev, min_uV, max_uV);
-	if (ret < 0)
+	if(ret < 0)
 		goto out2;
-
 out:
 	mutex_unlock(&rdev->mutex);
 	return ret;
@@ -3004,7 +3003,7 @@ static ssize_t reg_debug_volt_get(struct file *file, char __user *buf,
 	mutex_lock(&debug_buf_mutex);
 
 	output = snprintf(debug_buf, MAX_DEBUG_BUF_LEN-1, "%d\n", voltage);
-	rc = simple_read_from_buffer((void __user *) buf, output, ppos,
+	rc = simple_read_from_buffer((void __user *) buf, count, ppos,
 					(void *) debug_buf, output);
 
 	mutex_unlock(&debug_buf_mutex);
