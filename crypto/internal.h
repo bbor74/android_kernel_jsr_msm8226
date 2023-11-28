@@ -51,7 +51,7 @@ extern struct rw_semaphore crypto_alg_sem;
 extern struct blocking_notifier_head crypto_chain;
 
 #ifdef CONFIG_PROC_FS
-void __init crypto_init_proc(void);
+void crypto_init_proc(void);
 void __exit crypto_exit_proc(void);
 #else
 static inline void crypto_init_proc(void)
