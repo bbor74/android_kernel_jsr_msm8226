@@ -19,7 +19,7 @@ struct v4l2_subdev *msm_buf_mngr_get_subdev(void)
 }
 
 static int msm_buf_mngr_get_buf(struct msm_buf_mngr_device *buf_mngr_dev,
-	void __user *argp)
+				void __user *argp)
 {
 	unsigned long flags;
 	struct msm_buf_mngr_info *buf_info =
@@ -33,7 +33,7 @@ static int msm_buf_mngr_get_buf(struct msm_buf_mngr_device *buf_mngr_dev,
 	}
 	INIT_LIST_HEAD(&new_entry->entry);
 	new_entry->vb2_buf = buf_mngr_dev->vb2_ops.get_buf(buf_info->session_id,
-		buf_info->stream_id);
+							   buf_info->stream_id);
 	if (!new_entry->vb2_buf) {
 		pr_debug("%s:Get buf is null\n", __func__);
 		kfree(new_entry);
@@ -49,7 +49,7 @@ static int msm_buf_mngr_get_buf(struct msm_buf_mngr_device *buf_mngr_dev,
 }
 
 static int msm_buf_mngr_buf_done(struct msm_buf_mngr_device *buf_mngr_dev,
-	struct msm_buf_mngr_info *buf_info)
+				 struct msm_buf_mngr_info *buf_info)
 {
 	unsigned long flags;
 	struct msm_get_bufs *bufs, *save;
@@ -58,15 +58,15 @@ static int msm_buf_mngr_buf_done(struct msm_buf_mngr_device *buf_mngr_dev,
 	spin_lock_irqsave(&buf_mngr_dev->buf_q_spinlock, flags);
 	list_for_each_entry_safe(bufs, save, &buf_mngr_dev->buf_qhead, entry) {
 		if ((bufs->session_id == buf_info->session_id) &&
-			(bufs->stream_id == buf_info->stream_id) &&
-			(bufs->vb2_buf->v4l2_buf.index == buf_info->index)) {
+		    (bufs->stream_id == buf_info->stream_id) &&
+		    (bufs->vb2_buf->v4l2_buf.index == buf_info->index)) {
 			bufs->vb2_buf->v4l2_buf.sequence  = buf_info->frame_id;
 			bufs->vb2_buf->v4l2_buf.timestamp = buf_info->timestamp;
 			bufs->vb2_buf->v4l2_buf.reserved = 0;
 			ret = buf_mngr_dev->vb2_ops.buf_done
-					(bufs->vb2_buf,
-						buf_info->session_id,
-						buf_info->stream_id);
+				      (bufs->vb2_buf,
+				      buf_info->session_id,
+				      buf_info->stream_id);
 			list_del_init(&bufs->entry);
 			kfree(bufs);
 			break;
@@ -77,28 +77,6 @@ static int msm_buf_mngr_buf_done(struct msm_buf_mngr_device *buf_mngr_dev,
 }
 
 
-static int msm_buf_mngr_put_buf(struct msm_buf_mngr_device *buf_mngr_dev,
-	struct msm_buf_mngr_info *buf_info)
-{
-	unsigned long flags;
-	struct msm_get_bufs *bufs, *save;
-	int ret = -EINVAL;
-
-	spin_lock_irqsave(&buf_mngr_dev->buf_q_spinlock, flags);
-	list_for_each_entry_safe(bufs, save, &buf_mngr_dev->buf_qhead, entry) {
-		if ((bufs->session_id == buf_info->session_id) &&
-			(bufs->stream_id == buf_info->stream_id) &&
-			(bufs->vb2_buf->v4l2_buf.index == buf_info->index)) {
-			ret = buf_mngr_dev->vb2_ops.put_buf(bufs->vb2_buf,
-				buf_info->session_id, buf_info->stream_id);
-			list_del_init(&bufs->entry);
-			kfree(bufs);
-			break;
-		}
-	}
-	spin_unlock_irqrestore(&buf_mngr_dev->buf_q_spinlock, flags);
-	return ret;
-}
 
 static void msm_buf_mngr_sd_shutdown(struct msm_buf_mngr_device *buf_mngr_dev)
 {
@@ -118,6 +96,30 @@ static void msm_buf_mngr_sd_shutdown(struct msm_buf_mngr_device *buf_mngr_dev)
 	}
 	spin_unlock_irqrestore(&buf_mngr_dev->buf_q_spinlock, flags);
 }
+
+static int msm_buf_mngr_put_buf(struct msm_buf_mngr_device *buf_mngr_dev,
+				struct msm_buf_mngr_info *buf_info)
+{
+	unsigned long flags;
+	struct msm_get_bufs *bufs, *save;
+	int ret = -EINVAL;
+
+	spin_lock_irqsave(&buf_mngr_dev->buf_q_spinlock, flags);
+	list_for_each_entry_safe(bufs, save, &buf_mngr_dev->buf_qhead, entry) {
+		if ((bufs->session_id == buf_info->session_id) &&
+		    (bufs->stream_id == buf_info->stream_id) &&
+		    (bufs->vb2_buf->v4l2_buf.index == buf_info->index)) {
+			ret = buf_mngr_dev->vb2_ops.put_buf(bufs->vb2_buf,
+							    buf_info->session_id, buf_info->stream_id);
+			list_del_init(&bufs->entry);
+			kfree(bufs);
+			break;
+		}
+	}
+	spin_unlock_irqrestore(&buf_mngr_dev->buf_q_spinlock, flags);
+	return ret;
+}
+
 
 static int msm_generic_buf_mngr_open(struct v4l2_subdev *sd,
 	struct v4l2_subdev_fh *fh)
@@ -146,11 +148,11 @@ static int msm_generic_buf_mngr_close(struct v4l2_subdev *sd,
 }
 
 static long msm_buf_mngr_subdev_ioctl(struct v4l2_subdev *sd,
-	unsigned int cmd, void *arg)
+				      unsigned int cmd, void *arg)
 {
 	int rc = 0;
 	struct msm_buf_mngr_device *buf_mngr_dev = v4l2_get_subdevdata(sd);
-	void __user *argp = (void __user *)arg;
+	void __user *argp = (void __user*)arg;
 
 	if (!buf_mngr_dev) {
 		pr_err("%s buf manager device NULL\n", __func__);
@@ -184,7 +186,7 @@ static long msm_buf_mngr_subdev_ioctl(struct v4l2_subdev *sd,
 }
 
 static struct v4l2_subdev_core_ops msm_buf_mngr_subdev_core_ops = {
-	.ioctl = msm_buf_mngr_subdev_ioctl,
+	.ioctl	= msm_buf_mngr_subdev_ioctl,
 };
 
 static const struct v4l2_subdev_internal_ops
@@ -194,28 +196,29 @@ static const struct v4l2_subdev_internal_ops
 };
 
 static const struct v4l2_subdev_ops msm_buf_mngr_subdev_ops = {
-	.core = &msm_buf_mngr_subdev_core_ops,
+	.core	= &msm_buf_mngr_subdev_core_ops,
 };
 
 static const struct of_device_id msm_buf_mngr_dt_match[] = {
-	{.compatible = "qcom,msm_buf_mngr"},
+	{ .compatible = "qcom,msm_buf_mngr" },
 	{}
 };
 
 static int __init msm_buf_mngr_init(void)
 {
 	int rc = 0;
+
 	msm_buf_mngr_dev = kzalloc(sizeof(*msm_buf_mngr_dev),
-		GFP_KERNEL);
+				   GFP_KERNEL);
 	if (WARN_ON(!msm_buf_mngr_dev)) {
 		pr_err("%s: not enough memory", __func__);
 		return -ENOMEM;
 	}
 	/* Sub-dev */
 	v4l2_subdev_init(&msm_buf_mngr_dev->subdev.sd,
-		&msm_buf_mngr_subdev_ops);
+			 &msm_buf_mngr_subdev_ops);
 	snprintf(msm_buf_mngr_dev->subdev.sd.name,
-		ARRAY_SIZE(msm_buf_mngr_dev->subdev.sd.name), "msm_buf_mngr");
+		 ARRAY_SIZE(msm_buf_mngr_dev->subdev.sd.name), "msm_buf_mngr");
 	msm_buf_mngr_dev->subdev.sd.flags |= V4L2_SUBDEV_FL_HAS_DEVNODE;
 	v4l2_set_subdevdata(&msm_buf_mngr_dev->subdev.sd, msm_buf_mngr_dev);
 
@@ -233,7 +236,7 @@ static int __init msm_buf_mngr_init(void)
 	}
 
 	v4l2_subdev_notify(&msm_buf_mngr_dev->subdev.sd, MSM_SD_NOTIFY_REQ_CB,
-		&msm_buf_mngr_dev->vb2_ops);
+			   &msm_buf_mngr_dev->vb2_ops);
 
 	INIT_LIST_HEAD(&msm_buf_mngr_dev->buf_qhead);
 	spin_lock_init(&msm_buf_mngr_dev->buf_q_spinlock);
