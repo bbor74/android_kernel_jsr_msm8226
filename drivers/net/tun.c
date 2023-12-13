@@ -73,7 +73,7 @@
 #include <asm/uaccess.h>
 
 /* Uncomment to enable debugging */
-/* #define TUN_DEBUG 1 */
+#define TUN_DEBUG 1
 
 #ifdef TUN_DEBUG
 static int debug;
