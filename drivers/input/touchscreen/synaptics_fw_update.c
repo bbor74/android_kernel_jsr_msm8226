@@ -2183,6 +2183,7 @@ static struct device_attribute attrs[] = {
 };
 
 
+#ifdef INSIDE_FIRMWARE_UPDATE
 static void synaptics_rmi4_fwu_work(struct work_struct *work)
 {
 	mutex_lock(&fwu_sysfs_mutex);
@@ -2191,6 +2192,7 @@ static void synaptics_rmi4_fwu_work(struct work_struct *work)
 
 	mutex_unlock(&fwu_sysfs_mutex);
 }
+#endif
 
 static int synaptics_rmi4_fwu_init(struct synaptics_rmi4_data *rmi4_data)
 {
