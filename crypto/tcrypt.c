@@ -67,6 +67,29 @@ static char *check[] = {
 	"lzo", "cts", "zlib", NULL
 };
 
+#if defined(CONFIG_CRYPTO_DRBG) && defined(CONFIG_CRYPTO_FIPS)
+static char *drbg_cores[] = {
+#ifdef CONFIG_CRYPTO_DRBG_CTR
+	"ctr_aes128",
+	"ctr_aes192",
+	"ctr_aes256",
+#endif /* CONFIG_CRYPTO_DRBG_CTR */
+#ifdef CONFIG_CRYPTO_DRBG_HASH
+	"sha1",
+	"sha384",
+	"sha512",
+	"sha256",
+#endif /* CONFIG_CRYPTO_DRBG_HASH */
+#ifdef CONFIG_CRYPTO_DRBG_HMAC
+	"hmac_sha1",
+	"hmac_sha384",
+	"hmac_sha512",
+	"hmac_sha256",
+#endif /* CONFIG_CRYPTO_DRBG_HMAC */
+};
+
+#endif /* CONFIG_CRYPTO_DRBG && CONFIG_CRYPTO_FIPS */
+
 static int test_cipher_jiffies(struct blkcipher_desc *desc, int enc,
 			       struct scatterlist *sg, int blen, int sec)
 {
@@ -919,6 +942,27 @@ out_free_req:
 out:
 	crypto_free_ablkcipher(tfm);
 }
+
+#ifdef CONFIG_CRYPTO_DRBG
+static inline int test_drbg(const char *drbg_core, int pr)
+{
+	int pos = 0;
+	char cra_driver_name[CRYPTO_MAX_ALG_NAME] = "";
+
+	if(!drbg_core)
+		return -EINVAL;
+
+	if (pr) { /* with prediction resistance */
+		memcpy(cra_driver_name, "drbg_pr_", 8);
+		pos = 8;
+	} else {
+		memcpy(cra_driver_name, "drbg_nopr_", 10);
+		pos = 10;
+	}
+	memcpy(cra_driver_name + pos, drbg_core, strlen(drbg_core));
+	return alg_test(cra_driver_name, "stdrng", 0, 0);
+}
+#endif /* CONFIG_CRYPTO_DRBG */
 
 static void test_available(void)
 {
