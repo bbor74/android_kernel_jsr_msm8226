@@ -133,8 +133,7 @@ static int _get_more_prng_bytes(struct prng_context *ctx, int cont_test)
 			if (!memcmp(ctx->rand_data, ctx->last_rand_data,
 					DEFAULT_BLK_SZ)) {
 				if (cont_test) {
-					panic("cprng %p Failed repetition check!\n",
-						ctx);
+					panic("cprng %p Failed repetition check!\n", ctx);					
 				}
 
 				printk(KERN_ERR

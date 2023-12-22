@@ -3010,7 +3010,7 @@ int alg_test(const char *driver, const char *alg, u32 type, u32 mask)
 {
 	int i;
 	int j;
-	int rc;
+	int rc = 0;
 
 	if ((type & CRYPTO_ALG_TYPE_MASK) == CRYPTO_ALG_TYPE_CIPHER) {
 		char nalg[CRYPTO_MAX_ALG_NAME];
@@ -3048,12 +3048,17 @@ int alg_test(const char *driver, const char *alg, u32 type, u32 mask)
 					     type, mask);
 
 test_done:
-	if (fips_enabled && rc)
-		panic("%s: %s alg self test failed in fips mode!\n", driver, alg);
+	if (fips_enabled && rc) {
+		printk(KERN_INFO
+			"alg: %s: %s alg self test failed\n",
+			driver, alg);
+		panic("%s: %s alg self test failed in fips mode!\n", driver, alg);		
+		return rc;
+	}
 
 	if (fips_enabled && !rc)
 		printk(KERN_INFO "alg: self-tests for %s (%s) passed\n",
-		       driver, alg);
+			driver, alg);
 
 	return rc;
 
@@ -3061,7 +3066,15 @@ notest:
 	printk(KERN_INFO "alg: No test for %s (%s)\n", alg, driver);
 	return 0;
 non_fips_alg:
-	return -EINVAL;
+	if (!rc)
+		printk(KERN_INFO
+			"alg: self-tests for non-FIPS %s (%s) passed\n",
+			driver, alg);
+	else
+		printk(KERN_INFO
+			"alg: self-tests for non-FIPS %s (%s) failed\n",
+			alg, driver);
+	return rc;
 }
 
 #endif /* CONFIG_CRYPTO_MANAGER_DISABLE_TESTS */
