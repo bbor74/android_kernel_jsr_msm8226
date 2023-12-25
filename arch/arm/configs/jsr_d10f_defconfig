@@ -3596,7 +3596,7 @@ CONFIG_CRYPTO_TEST=y
 # Authenticated Encryption with Associated Data
 #
 # CONFIG_CRYPTO_CCM is not set
-CONFIG_CRYPTO_GCM=y
+# CONFIG_CRYPTO_GCM is not set
 CONFIG_CRYPTO_SEQIV=y
 
 #
