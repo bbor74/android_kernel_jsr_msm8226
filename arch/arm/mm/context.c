@@ -55,6 +55,7 @@ void cpu_set_reserved_ttbr0(void)
 }
 #endif
 
+#ifdef CONFIG_PID_IN_CONTEXTIDR
 static void write_contextidr(u32 contextidr)
 {
 	uncached_logk(LOGK_CTXID, (void *)contextidr);
@@ -62,7 +63,6 @@ static void write_contextidr(u32 contextidr)
 	isb();
 }
 
-#ifdef CONFIG_PID_IN_CONTEXTIDR
 static u32 read_contextidr(void)
 {
 	u32 contextidr;
