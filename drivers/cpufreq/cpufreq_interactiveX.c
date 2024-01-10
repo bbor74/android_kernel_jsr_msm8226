@@ -610,7 +610,7 @@ static void cpufreq_interactivex_boost(void)
 	if (anyboost)
 		wake_up_process(speedchange_task);
 }
-
+#if defined(CONFIG_POWERSUSPEND) || defined(CONFIG_HAS_EARLYSUSPEND)
 static void __ref interactivex_suspend(int suspend)
 {
         if (!enabled) return;
@@ -622,7 +622,7 @@ static void __ref interactivex_suspend(int suspend)
                 pr_info("[imoseyon] interactivex suspended cpu1 down\n");
 	}
 }
-
+#endif
 #ifdef CONFIG_POWERSUSPEND
 static void interactivex_powersuspend(struct power_suspend *handler) {
       if (!registration) interactivex_suspend(1);
