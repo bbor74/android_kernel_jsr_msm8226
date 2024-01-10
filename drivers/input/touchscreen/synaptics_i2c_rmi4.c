@@ -2962,6 +2962,9 @@ static int __devinit synaptics_rmi4_probe(struct i2c_client *client,
 	set_bit(INPUT_PROP_DIRECT, rmi4_data->input_dev->propbit);
 #endif
 
+	init_waitqueue_head(&rmi4_data->wait);
+	mutex_init(&(rmi4_data->rmi4_io_ctrl_mutex));
+
 	retval = synaptics_rmi4_regulator_configure(rmi4_data, true);
 	if (retval < 0) {
 		dev_err(&client->dev, "Failed to configure regulators\n");
@@ -2979,9 +2982,6 @@ static int __devinit synaptics_rmi4_probe(struct i2c_client *client,
 		dev_err(&client->dev, "Failed to configure gpios\n");
 		goto err_gpio_config;
 	}
-
-	init_waitqueue_head(&rmi4_data->wait);
-	mutex_init(&(rmi4_data->rmi4_io_ctrl_mutex));
 
 	INIT_LIST_HEAD(&rmi->support_fn_list);
 	mutex_init(&rmi->support_fn_list_mutex);
