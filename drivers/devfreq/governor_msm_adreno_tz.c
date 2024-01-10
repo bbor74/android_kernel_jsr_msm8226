@@ -19,9 +19,14 @@
 #include <linux/io.h>
 #include <linux/ftrace.h>
 #include <linux/msm_adreno_devfreq.h>
-#include <linux/powersuspend.h>
 #include <mach/scm.h>
 #include "governor.h"
+
+#ifdef CONFIG_POWERSUSPEND
+#include <linux/powersuspend.h>
+#else
+static bool power_suspended = false;
+#endif
 
 static DEFINE_SPINLOCK(tz_lock);
 

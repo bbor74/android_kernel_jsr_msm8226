@@ -52,8 +52,13 @@
 #include <linux/kthread.h>
 #include <linux/slab.h>
 #include <linux/kernel_stat.h>
-#include <linux/powersuspend.h>
 #include <asm/cputime.h>
+
+#ifdef CONFIG_POWERSUSPEND
+#include <linux/powersuspend.h>
+#else
+static bool power_suspended = true;
+#endif
 
 #define CONFIG_MODE_AUTO_CHANGE
 // #define CONFIG_RETENTION_CHANGE
