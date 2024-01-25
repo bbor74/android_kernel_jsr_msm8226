@@ -31,6 +31,8 @@ static bool enable_bluedroid_timer_ws = true;
 module_param(enable_bluedroid_timer_ws, bool, 0644);
 static bool enable_bluesleep_ws = true;
 module_param(enable_bluesleep_ws, bool, 0644);
+static bool enable_sensors_qcom_ws = false;
+module_param(enable_sensors_qcom_ws, bool, 0644);
 
 /*
  * If set, the suspend/hibernate code will abort transitions to a sleep state
@@ -423,6 +425,35 @@ static void wakeup_source_deactivate(struct wakeup_source *ws)
                 wake_up(&wakeup_count_wait_queue);
 }
 
+static bool wakeup_source_blocker(struct wakeup_source *ws)
+{
+	if (ws) {
+
+		if (((!enable_si_ws && !strcmp(ws->name, "sensor_ind")) ||
+			(!enable_sensors_qcom_ws &&
+				!(strstr(ws->name, "sensors.qcom") == NULL) ) ||
+			(!enable_wlan_rx_wake_ws &&
+				!strcmp(ws->name, "wlan_rx_wake")) ||
+			(!enable_wlan_ctrl_wake_ws &&
+				!strcmp(ws->name, "wlan_ctrl_wake")) ||
+			(!enable_wlan_wake_ws &&
+				!strcmp(ws->name, "wlan_wake")) ||
+			(!enable_bluedroid_timer_ws &&
+				!strcmp(ws->name, "bluedroid_timer"))||
+			(!enable_bluesleep_ws && !strcmp(ws->name, "bluesleep")))) {
+			if (ws->active) {
+				wakeup_source_deactivate(ws);
+				pr_info("forcefully deactivate wakeup source: %s\n",
+					ws->name);
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 /*
  * The functions below use the observation that each wakeup event starts a
  * period in which the system should not be suspended.  The moment this period
@@ -462,24 +493,6 @@ static void wakeup_source_deactivate(struct wakeup_source *ws)
 static void wakeup_source_activate(struct wakeup_source *ws)
 {
 	unsigned int cec;
-
-	if (((!enable_wlan_rx_wake_ws && !strcmp(ws->name, "wlan_rx_wake")) ||
-		(!enable_wlan_ctrl_wake_ws &&
-			!strcmp(ws->name, "wlan_ctrl_wake")) ||
-		(!enable_wlan_wake_ws &&
-			!strcmp(ws->name, "wlan_wake")) ||
-		(!enable_bluedroid_timer_ws &&
-			!strcmp(ws->name, "bluedroid_timer"))||
-		(!enable_bluesleep_ws && !strcmp(ws->name, "bluesleep")))) {
-		/*
-		 * let's try and deactivate this wakeup source since the user
-		 * clearly doesn't want it. The user is responsible for any
-		 * adverse effects and has been warned about it
-		 */
-		wakeup_source_deactivate(ws);
-		return;
-	}
-
 	/*
 	 * active wakeup source should bring the system
 	 * out of PM_SUSPEND_FREEZE state
@@ -504,6 +517,7 @@ static void wakeup_source_activate(struct wakeup_source *ws)
  */
 static void wakeup_source_report_event(struct wakeup_source *ws)
 {
+	if (!wakeup_source_blocker(ws)) {
 	ws->event_count++;
 	/* This is racy, but the counter is approximate anyway. */
 	if (events_check_enabled)
@@ -511,6 +525,7 @@ static void wakeup_source_report_event(struct wakeup_source *ws)
 
 	if (!ws->active)
 		wakeup_source_activate(ws);
+	}
 }
 
 /**
