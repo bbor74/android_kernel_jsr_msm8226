@@ -33,6 +33,8 @@ static bool enable_bluesleep_ws = true;
 module_param(enable_bluesleep_ws, bool, 0644);
 static bool enable_sensors_qcom_ws = false;
 module_param(enable_sensors_qcom_ws, bool, 0644);
+static bool enable_ipcrtr_ws = false;
+module_param(enable_ipcrtr_ws, bool, 0644);
 
 /*
  * If set, the suspend/hibernate code will abort transitions to a sleep state
@@ -432,6 +434,8 @@ static bool wakeup_source_blocker(struct wakeup_source *ws)
 		if (((!enable_si_ws && !strcmp(ws->name, "sensor_ind")) ||
 			(!enable_sensors_qcom_ws &&
 				!(strstr(ws->name, "sensors.qcom") == NULL) ) ||
+			(!enable_ipcrtr_ws &&
+				!(strstr(ws->name, "ipcrtr") == NULL) ) ||
 			(!enable_wlan_rx_wake_ws &&
 				!strcmp(ws->name, "wlan_rx_wake")) ||
 			(!enable_wlan_ctrl_wake_ws &&
