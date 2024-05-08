@@ -26,6 +26,14 @@
 					fsmgr_flags = "wait";
 					status = "ok";
 				};
+				persist {
+					compatible = "android,persist";
+					dev = "/dev/block/platform/msm_sdcc.1/by-name/persist";
+					type = "ext4";
+					mnt_flags = "nosuid,nodev,barrier=1";
+					fsmgr_flags = "wait";
+					status = "ok";
+				};
 			};
 		};
 	};
