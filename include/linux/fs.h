@@ -1722,6 +1722,7 @@ struct inode_operations {
 	int (*removexattr) (struct dentry *, const char *);
 	int (*fiemap)(struct inode *, struct fiemap_extent_info *, u64 start,
 		      u64 len);
+	int (*set_acl)(struct inode *, struct posix_acl *, int);
 	int (*update_time)(struct inode *, struct timespec *, int);
 } ____cacheline_aligned;
 
