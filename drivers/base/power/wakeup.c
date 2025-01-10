@@ -19,6 +19,8 @@
 
 #include "power.h"
 
+static bool enable_qcom_rx_wakelock_ws = true;
+module_param(enable_qcom_rx_wakelock_ws, bool, 0644);
 static bool enable_si_ws = true;
 module_param(enable_si_ws, bool, 0644);
 static bool enable_wlan_rx_wake_ws = true;
@@ -35,6 +37,12 @@ static bool enable_sensors_qcom_ws = false;
 module_param(enable_sensors_qcom_ws, bool, 0644);
 static bool enable_ipcrtr_ws = false;
 module_param(enable_ipcrtr_ws, bool, 0644);
+static bool enable_timerfd_ws = false;
+module_param(enable_timerfd_ws, bool, 0644);
+static bool enable_netlink_ws = true;
+module_param(enable_netlink_ws, bool, 0644);
+static bool enable_smdcntl0_ws = false;
+module_param(enable_smdcntl0_ws, bool, 0644);
 
 /*
  * If set, the suspend/hibernate code will abort transitions to a sleep state
@@ -469,6 +477,8 @@ static bool wakeup_source_blocker(struct wakeup_source *ws)
 		if (((!enable_si_ws && !strcmp(ws->name, "sensor_ind")) ||
 			(!enable_sensors_qcom_ws &&
 				!(strstr(ws->name, "sensors.qcom") == NULL) ) ||
+			(!enable_qcom_rx_wakelock_ws &&
+				!strstr(ws->name, "qcom_rx_wakelock")) ||
 			(!enable_ipcrtr_ws &&
 				!(strstr(ws->name, "ipcrtr") == NULL) ) ||
 			(!enable_wlan_rx_wake_ws &&
@@ -479,6 +489,12 @@ static bool wakeup_source_blocker(struct wakeup_source *ws)
 				!strcmp(ws->name, "wlan_wake")) ||
 			(!enable_bluedroid_timer_ws &&
 				!strcmp(ws->name, "bluedroid_timer"))||
+			(!enable_timerfd_ws &&
+				!strcmp(ws->name, "[timerfd]")) ||
+			(!enable_netlink_ws &&
+				!strcmp(ws->name, "NETLINK")) ||
+			(!enable_smdcntl0_ws &&
+				!strcmp(ws->name, "smdcntl0")) ||
 			(!enable_bluesleep_ws && !strcmp(ws->name, "bluesleep")))) {
 			if (ws->active) {
 				wakeup_source_deactivate(ws);
